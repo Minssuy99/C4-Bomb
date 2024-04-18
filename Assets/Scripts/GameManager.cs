@@ -17,9 +17,6 @@ public class GameManager : MonoBehaviour
     public int cardCount = 0;   // 남은 카드 갯수
     public float time = 30.0f;  // 시간 변수
 
-    // 난이도 설정
-    public int level = 2;
-
     // 시간 감소 표시 UI
     public GameObject penaltyTxt; 
 
@@ -35,7 +32,7 @@ public class GameManager : MonoBehaviour
 
     // 게임 종료 관련 변수
     public GameObject endPanel;     // 게임 종료 패널
-    public Text matchTxt;           // 매치 표시 텍스트
+    public Text matchNum;           // 매치 표시 텍스트
     public Text scoreTxt;           // 점수 표시 텍스트
     public Text timeLeftTxt;        // 게임 종료 후 남은 시간 텍스트
     public int cardMaxCount = 0;    // 이건 맞춘 카드 점수 계산을 위한 것 (총 카드 갯수)
@@ -48,11 +45,16 @@ public class GameManager : MonoBehaviour
     public GameObject bestTimePanel;     // 비활성화 전용
     public Text bestTimeTxt;        // 최고 시간 표시용
 
-    string stageBestTime = "bestTime";
+    string stageBestTime = "stageBestTime";
 
-    Color red = new Color32(255, 0, 0, 255);
-    bool noTime = false;  // if (time <= 5.0f) 문이 한 번만 실행되게
+    // 시작 애니메이션 발동을 위한 타이머 끄기
+    public bool timerOn = false;
 
+    public static class sceneVariable
+    {
+        public static int level = 1;  // 레벨
+        public static int openStage = 1;
+    }
     private void Awake()   
     {
         if (Instance == null)
@@ -62,75 +64,43 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        Application.targetFrameRate = 60;  // 최대 프레임 고정
-        Time.timeScale = 1.0f;  // 게임 오버 후 재시작 시 게임 재진행
+        Time.timeScale = 1.0f;
         audioSource = GetComponent<AudioSource>(); // 오디오 컴포넌트 가져오기
-        stageBestTime = level + stageBestTime;     // 스테이지에 따른 변수 변경
+        stageBestTime = sceneVariable.level + stageBestTime;     // 스테이지에 따른 변수 변경
         ShowBestTime();    // 최단 시간 보여주기 
-        
-        AudioManager am = GameObject.Find("AudioManager").GetComponent<AudioManager>();
-        am.audioSource.pitch = 1.0f;
     }
 
     void Update()
     {
-        time -= Time.deltaTime;
-      
-        if (time <= 6.0f && !noTime)  // 시간이 6초 이하로 남았을 때 타이머 빨간 글자로, bgm 피치 올리기
+        if (timerOn && cardCount > 0)
+            time -= Time.deltaTime;
+        timeTxt.text = time.ToString("N2");
+        if (time <= 0) 
         {
-            noTime = true;
-
-            timeTxt.color = red;
-
-            AudioManager am = GameObject.Find("AudioManager").GetComponent<AudioManager>();
-            am.audioSource.pitch = 1.2f;
+            time = 0;       // 혹여나 감소되서 음수가 되었을 때를 대비
+            GameOver();     // 게임오버 호출
         }
-
-        if (time <= 0.0f)  // 게임 오버
-        {
-            time = 0.0f;
-            GameOver();
-        }
-
-        timeTxt.text = time.ToString("N2"); // 타이머, 소수점 둘째 자리까지
     }
-    
-    void BestTime()
-    {
-        
-        if (PlayerPrefs.HasKey(stageBestTime))    // 최고 시간이 있나요?
-        {
-            float bestTime = PlayerPrefs.GetFloat(stageBestTime); // 최고 시간을 가지고 옴
-            if (time > bestTime)        //남은 시간이 최고 시간 보다 많나요?
-            {
-                PlayerPrefs.SetFloat(stageBestTime, time);    // 갱신
-            }
-        }
-        else
-        {
-            PlayerPrefs.SetFloat(stageBestTime, time);        // 갱신
-        }
-        
-    }
-
     void ShowBestTime()
     {
         if (PlayerPrefs.HasKey(stageBestTime))
         {
             bestTimeTxt.text = PlayerPrefs.GetFloat(stageBestTime).ToString("N2");
         }
-        else // 없으면 숨기기로 했다.
+        else
         {
             bestTimePanel.SetActive(false);
         }
     }
-
-    public static class sceneVariable
+    void BestTime()
     {
-        public static int level = 1;  // 레벨
-        public static int openStage = 1;
+        if (PlayerPrefs.HasKey(stageBestTime))
+        {
+            float bestTime = PlayerPrefs.GetFloat(stageBestTime);
+            if (bestTime > time) { return; }
+        }
+        PlayerPrefs.SetFloat(stageBestTime, time);
     }
-
     public void Matched()
     {
         
@@ -139,24 +109,30 @@ public class GameManager : MonoBehaviour
             audioSource.PlayOneShot(clip);  //정답 소리
             ShowName();                     //이름 보여주기
 
-            MoveCard(firstCard);
-            secondCard.gameObject.SetActive(false);
-
+            // 예전 매칭 애니메이션
+            // MoveCard(firstCard); 
+            // secondCard.gameObject.SetActive(false);
 
             // 맞춘 카드 파괴
             firstCard.DestroyCard();
             secondCard.DestroyCard();       
             cardCount -= 2;     //맞춰서 사라졋으니 남은 카드 감소
 
+            Invoke("CleanCard", 0.1f); // 구별한 이유 - 카드 까는 게 시원치 않음.
+
             if (cardCount == 0) // 더 이상 카드가 없다면
             {
                 BestTime();     // 게임을 해냈으니 최단 시간 할당하는 함수 호출
-                GameOver();     // 게임오버 함수 호출
-            }
-            void MoveCard(Card card)
-            {
-                card.transform.position = new Vector2(-1.5f, 4f);
-                card.anim.SetBool("isMatch", true);
+                Invoke("GameOver", 0.6f);    // 게임오버 함수 호출
+
+                if (sceneVariable.level == 1 && sceneVariable.openStage == 1)
+                {
+                    sceneVariable.openStage = 2;
+                }
+                else if (sceneVariable.level == 2 && sceneVariable.openStage == 2)
+                {
+                    sceneVariable.openStage = 3;
+                }  // 이전 스테이지 클리어 시 다음 스테이지 오픈
             }
         }
         else        // 카드가 다르다면
@@ -174,25 +150,21 @@ public class GameManager : MonoBehaviour
             Invoke("closeTxt", 0.5f);       // 타이머 시간 감소 UI 닫기
 
             // 카드색 변경
-            Invoke("ChangeColor", 0.5f);    // 이미 건드린 카드 색깔 변경
+            Invoke("ChangeColor", 0.1f);    // 이미 건드린 카드 색깔 변경
+            // 카드 닫기
+            Invoke("CleanCard", 0.175f);   // ChangeColor 오류 걸리는 거에 유의바람!
         }
         matchCount++;           // 매칭 횟수 증가
-        Invoke("CleanCard", 0.5f);// 카드 정보 삭제 함수 호출
+        
     }
     void GameOver()         // 조건이 게임오버에 해당한다면 나를 불러주세요
     {
-
-        noTime = true;
-        AudioManager am = GameObject.Find("AudioManager").GetComponent<AudioManager>();
-        am.audioSource.pitch = 1.0f;
+        Time.timeScale = 0.0f;
         // 결과창 반영
-        matchTxt.text = "매칭 시도 횟수 : " + matchCount.ToString();  //텍스트 반영
+        matchNum.text = "매칭 시도 횟수 : " + matchCount.ToString();  //텍스트 반영
         timeLeftTxt.text = "남은 시간 : " + time.ToString("N2");        // 남은 시간 반영
         ScoreCalculate();
         endPanel.SetActive(true);
-
-        Time.timeScale = 0.0f;
-
     }
     void CleanCard()    // 카드 정보 삭제
     {
@@ -225,11 +197,13 @@ public class GameManager : MonoBehaviour
     {
         nameText.text = null;
     }
-   void MoveCard(Card card)
+    /*  예전 매칭 애니메이션
+    void MoveCard(Card card)
     {
         card.transform.position= new Vector2(-1.5f,4f);
         card.anim.SetBool("isMatch", true);
     }
+    */
     void ChangeColor()  // 색깔 바꾸기 함수
     {
         SpriteRenderer firstCardBackRenderer = firstCard.transform.Find("Back").GetComponent<SpriteRenderer>();

@@ -252,8 +252,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 325}
-  m_SizeDelta: {x: 200, y: 200}
+  m_AnchoredPosition: {x: 0, y: 395}
+  m_SizeDelta: {x: 200, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &374695546
 MonoBehaviour:
@@ -491,8 +491,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 145, y: 400}
-  m_SizeDelta: {x: 200, y: 200}
+  m_AnchoredPosition: {x: 145, y: 465}
+  m_SizeDelta: {x: 200, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &771242515
 MonoBehaviour:
@@ -650,7 +650,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -65, y: 560}
+  m_AnchoredPosition: {x: -10, y: 560}
   m_SizeDelta: {x: 300, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &824505796
@@ -731,18 +731,18 @@ MonoBehaviour:
   secondCard: {fileID: 0}
   cardCount: 0
   time: 30
-  level: 2
   penaltyTxt: {fileID: 771242512}
   nameText: {fileID: 374695546}
   clip: {fileID: 8300000, guid: 2d4f087b4e345c048ace4615b4801c7b, type: 3}
   clip2: {fileID: 8300000, guid: 9e72e1883f78a65489a5325666228cec, type: 3}
   endPanel: {fileID: 66009027}
-  matchTxt: {fileID: 1542714392}
+  matchNum: {fileID: 1542714392}
   scoreTxt: {fileID: 1172897469}
   timeLeftTxt: {fileID: 1828222205}
   cardMaxCount: 0
   bestTimePanel: {fileID: 824505794}
   bestTimeTxt: {fileID: 794573107}
+  timerOn: 0
 --- !u!4 &954738701
 Transform:
   m_ObjectHideFlags: 0
@@ -770,7 +770,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.013
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -968,8 +968,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 400}
-  m_SizeDelta: {x: 200, y: 200}
+  m_AnchoredPosition: {x: 0, y: 465}
+  m_SizeDelta: {x: 200, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1208839099
 MonoBehaviour:
@@ -1204,7 +1204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be79df91ce8b9474e9d5b38d2da50f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 1376666600}
+  audioSource: {fileID: 0}
   clip: {fileID: 8300000, guid: f6f172fcc03234449bd495bac695568f, type: 3}
 --- !u!82 &1376666600
 AudioSource:
@@ -1218,7 +1218,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.022
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0

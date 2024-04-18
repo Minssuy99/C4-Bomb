@@ -50,5 +50,5 @@ public class StageButton : MonoBehaviour
     {
         lockedPanel.SetActive(false);
     }
-    
+
 }
