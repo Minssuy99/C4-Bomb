@@ -17,6 +17,12 @@ public class Card : MonoBehaviour
 
     public Animator anim;
 
+    // 배치 애니메이션 전용 코드
+    public int showNum;
+
+    // 중복 카드 열기 방지 코드
+    bool openCard;
+
     AudioSource audioSource;  // 오디오 삽입
     public AudioClip flip;
 
@@ -24,6 +30,8 @@ public class Card : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();  // 오디오 삽입
+
+        Invoke("ShowCard", 0.1f * showNum);  // 배치 애니메이션 순차 실행
     }
 
     // Update is called once per frame
@@ -43,13 +51,15 @@ public class Card : MonoBehaviour
 
     public void OpenCard()
     {
-        if (GameManager.instance.secondCard != null || Time.timeScale == 0.0f) return;
+        if (GameManager.instance.secondCard != null || openCard || Time.timeScale == 0.0f)
+            return;
 
+        openCard = true;          // 동일한 카드 누르기 방지
         audioSource.PlayOneShot(flip);  // 오디오가 겹치지 않게 1회만 실행
 
         anim.SetBool("isOpen", true);
-        front.SetActive(true);
-        back.SetActive(false);
+        // front.SetActive(true);
+        // back.SetActive(false);  // 기본 애니메이션
 
         // firstCard가 비었다면: firstCard에 내 정보를 넘겨줌
         if (GameManager.instance.firstCard == null)
@@ -67,7 +77,8 @@ public class Card : MonoBehaviour
 
     public void DestroyCard()
     {
-        Invoke("DestroyCardInvoke", 0.5f);
+        anim.SetBool("isMatch", true);
+        Invoke("DestroyCardInvoke", 3f);
     }
 
     void DestroyCardInvoke()
@@ -77,19 +88,18 @@ public class Card : MonoBehaviour
 
     public void CloseCard()
     {
+        if (cardTimer != null)
+            StopCoroutine(cardTimer);
+
+        openCard = false;
         Invoke("CloseCardInvoke", 0.5f);
     }
 
     void CloseCardInvoke()
     {
-        if (cardTimer != null)
-        {
-            StopCoroutine(cardTimer);
-        }
-
         anim.SetBool("isOpen", false);
-        front.SetActive(false);
-        back.SetActive(true);
+        // front.SetActive(false);
+        // back.SetActive(true);  // 애니메이터에 맡김
     }
 
     IEnumerator FirstCardTimer()  // 첫 카드를 뒤집고 5초가 지나면 리셋
@@ -125,5 +135,23 @@ public class Card : MonoBehaviour
                 cardName = "르탄이";
                 break;
         }
+    }
+
+    // 배치 애니메이션 전용 코드
+    void ShowCard()
+    {
+        anim.SetBool("ShowCard", true);     // 떨어지는 애니메이션 발동
+        Invoke("ShowCardInvoke", 0.2f);     // 다음 애니메이션 지연
+    }
+    void ShowCardInvoke()
+    {
+        anim.SetBool("ShowCard", false);    // CardIdle 상태로 진입
+        Invoke("CheckLastCard", 0.5f);      // 타이머 실행을 여유있게 설정
+    }
+    void CheckLastCard()
+    {
+        int lastCard = ((GameManager.sceneVariable.level + 2) * 4) - 1;
+        if (showNum == lastCard)    // 마지막 카드까지 깔릴 경우
+            GameManager.instance.timerOn = true;   // 타이머 작동
     }
 }

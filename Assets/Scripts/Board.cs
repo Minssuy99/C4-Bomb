@@ -30,7 +30,9 @@ public class Board : MonoBehaviour
             float y = (i / 4) * 1.4f - 1.6f - (0.7f * gmLevel);  // 세로 3 ~ 5줄 [-2.3f, -3.0f, -3.7f]
             go.transform.position = new Vector2(x,y);
 
-            go.GetComponent<Card>().Setting(arr[i]);  // Card 컴포넌트의 Setting 함수에 arr[i] 값을 넘겨줌
+            // Card 컴포넌트의 Setting 함수에 arr[i] 값을 넘겨줌
+            go.GetComponent<Card>().Setting(arr[i]);
+            go.GetComponent<Card>().showNum = i;
         }
 
         GameManager.instance.cardCount = arr.Length;  // Length: 글자수, 배열 개수 구하는 함수

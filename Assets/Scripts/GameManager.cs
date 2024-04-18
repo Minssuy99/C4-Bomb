@@ -13,8 +13,8 @@ public class GameManager : MonoBehaviour
     public Text timeTxt;  // 타이머
     public float time = 30.0f;
     Color red = new Color32(255, 0, 0, 255);
+    public bool timerOn = false;  // 시작 애니메이션 발동을 위한 타이머 끄기
     bool noTime = false;  // if (time <= 5.0f) 문이 한 번만 실행되게
-    bool gameOn = true;
 
     public Text successTxt;
     public GameObject successPanel;
@@ -75,17 +75,12 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (gameOn)
+        if (timerOn && cardCount > 0)
         {
             time -= Time.deltaTime;
         }
-        else
-        {
-            PlayerPrefs.SetFloat("endTime", time);
-            time = PlayerPrefs.GetFloat("endTime");
-        }
 
-        if (time <= 7.0f && !noTime)  // 시간이 7초 이하로 남았을 때 타이머 빨간 글자로, bgm 피치 올리기
+        if (time <= 8.0f && !noTime)  // 시간이 7초 이하로 남았을 때 타이머 빨간 글자로, bgm 피치 올리기
         {
             noTime = true;
 
@@ -126,9 +121,8 @@ public class GameManager : MonoBehaviour
 
             if (cardCount == 0)  // 게임 클리어
             {
-                gameOn = false;
                 BestTime();     // 게임을 해냈으니 최단 시간 함수 호출
-                Invoke("GameOver", 0.6f);
+                Invoke("GameOver", 1.0f);
 
                 if (sceneVariable.level == 1 && sceneVariable.openStage == 1)
                 {
@@ -217,7 +211,7 @@ public class GameManager : MonoBehaviour
             timeScore = 0;
         } // 음수 처리
         
-        int score = timeScore + matchScore;
+        int score = (timeScore + matchScore) * sceneVariable.level;
         scoreTxt.text = "점수 : " + score.ToString();
     }
 

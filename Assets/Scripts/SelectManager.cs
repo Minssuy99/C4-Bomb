@@ -12,6 +12,9 @@ public class SelectManager : MonoBehaviour
     {
         Time.timeScale = 1.0f;
 
+        AudioManager am = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        am.audioSource.pitch = 1.0f;
+
         Image Stage2BtnImage = Stage2Btn.transform.GetComponent<Image>();
         Image Stage3BtnImage = Stage3Btn.transform.GetComponent<Image>();
 
