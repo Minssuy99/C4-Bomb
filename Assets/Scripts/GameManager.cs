@@ -47,6 +47,9 @@ public class GameManager : MonoBehaviour
 
     string stageBestTime = "stageBestTime";
 
+    // 시작 애니메이션 발동을 위한 타이머 끄기
+    public bool timerOn = false;
+
     public static class sceneVariable
     {
         public static int level = 1;  // 레벨
@@ -69,7 +72,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        time -= Time.deltaTime;
+        if (timerOn && cardCount > 0)
+            time -= Time.deltaTime;
         timeTxt.text = time.ToString("N2");
         if (time <= 0) 
         {
@@ -93,8 +97,7 @@ public class GameManager : MonoBehaviour
         if (PlayerPrefs.HasKey(stageBestTime))
         {
             float bestTime = PlayerPrefs.GetFloat(stageBestTime);
-            if (time > bestTime) { }
-            else { return; }
+            if (bestTime > time) { return; }
         }
         PlayerPrefs.SetFloat(stageBestTime, time);
     }
@@ -106,14 +109,16 @@ public class GameManager : MonoBehaviour
             audioSource.PlayOneShot(clip);  //정답 소리
             ShowName();                     //이름 보여주기
 
-            MoveCard(firstCard);
-            secondCard.gameObject.SetActive(false);
-
+            // 예전 매칭 애니메이션
+            // MoveCard(firstCard); 
+            // secondCard.gameObject.SetActive(false);
 
             // 맞춘 카드 파괴
             firstCard.DestroyCard();
             secondCard.DestroyCard();       
             cardCount -= 2;     //맞춰서 사라졋으니 남은 카드 감소
+
+            Invoke("CleanCard", 0.1f); // 구별한 이유 - 카드 까는 게 시원치 않음.
 
             if (cardCount == 0) // 더 이상 카드가 없다면
             {
@@ -145,10 +150,12 @@ public class GameManager : MonoBehaviour
             Invoke("closeTxt", 0.5f);       // 타이머 시간 감소 UI 닫기
 
             // 카드색 변경
-            Invoke("ChangeColor", 0.5f);    // 이미 건드린 카드 색깔 변경
+            Invoke("ChangeColor", 0.1f);    // 이미 건드린 카드 색깔 변경
+            // 카드 닫기
+            Invoke("CleanCard", 0.175f);   // ChangeColor 오류 걸리는 거에 유의바람!
         }
         matchCount++;           // 매칭 횟수 증가
-        Invoke("CleanCard", 0.5f);// 카드 정보 삭제 함수 호출
+        
     }
     void GameOver()         // 조건이 게임오버에 해당한다면 나를 불러주세요
     {
@@ -190,11 +197,13 @@ public class GameManager : MonoBehaviour
     {
         nameText.text = null;
     }
-   void MoveCard(Card card)
+    /*  예전 매칭 애니메이션
+    void MoveCard(Card card)
     {
         card.transform.position= new Vector2(-1.5f,4f);
         card.anim.SetBool("isMatch", true);
     }
+    */
     void ChangeColor()  // 색깔 바꾸기 함수
     {
         SpriteRenderer firstCardBackRenderer = firstCard.transform.Find("Back").GetComponent<SpriteRenderer>();

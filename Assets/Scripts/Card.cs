@@ -14,7 +14,10 @@ public class Card : MonoBehaviour
         //그래픽 담당
     public Animator anim;
 
-        // 음악 담당
+    // 배치 애니메이션 전용 코드
+    public int showNum;
+
+    // 음악 담당
     AudioSource audioSource;
     public AudioClip clip;
 
@@ -32,6 +35,7 @@ public class Card : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();  //오디오 소스 컴포넌트를 건들겠다
+        Invoke("ShowCard", 0.1f * showNum); // 배치 애니메이션 순차 실행
     }
 
     // Update is called once per frame
@@ -51,7 +55,8 @@ public class Card : MonoBehaviour
     {
         // 이건 두번째 카드 매칭 중일 때나 이미 열린 카드를 열려고 할 때 방지하는 코드
         // 끝 화면에서 뒤에가려진 카드를 맞출경우 점수가 올라가는거 방지
-        if (GameManager.Instance.secondCard != null || openCard == true||Time.timeScale==0)    
+        // 카드가 배치되고 있을 때 뒤집는 거 방지
+        if (GameManager.Instance.secondCard != null || openCard ||Time.timeScale==0 || !GameManager.Instance.timerOn)    
             return;     // 함수에서 나간다.
 
         openCard = true;          // 동일한 카드 누르기 방지
@@ -63,7 +68,7 @@ public class Card : MonoBehaviour
         //back.SetActive(false); (이건 예전 애니메이션)
 
         // 카드 딜레이 주기 및 카드 오픈 다시 활성화 (안 넣으면 똑같은 걸 광클하면 맞춰진다;)
-        Invoke("OpenDelay", 0.25f);
+        //Invoke("OpenDelay", 0.25f);
 
         // 카드 정보를 넘기는 조건문
         if (GameManager.Instance.firstCard == null)
@@ -81,19 +86,20 @@ public class Card : MonoBehaviour
 
     }
 
+    /*
     // 딜레이용 함수
     void OpenDelay() 
     {
         openCard = false;
     } 
-
+    */
 
     // 카드 처리 함수들
     // Invoke를 넣은 이유는 공개와 파괴가 지연되어야 코드가 안 꼬일 것이라고 판단
     public void DestroyCard()
     {
         //transform.position= new Vector2(-1.5f,4f);
-        // anim.SetBool("isMatch", true);   // 애니메이션 발동
+        anim.SetBool("isMatch", true);
         Invoke("DestroyCardInvoke", 3f);
     }
 
@@ -110,8 +116,9 @@ public class Card : MonoBehaviour
     void CloseCardInvoke()
     {
         anim.SetBool("isOpen", false);
-        back.SetActive(true);
-        front.SetActive(false);
+        //back.SetActive(true);
+        //front.SetActive(false);   // 애니메이터가 다 알아서 해줄거야.
+        openCard = false;
     }
 
     private void SetCardName()      // 이름 정보 기입
@@ -149,5 +156,23 @@ public class Card : MonoBehaviour
         CloseCard();
       
    }
+
+    // 배치 애니메이션 전용 코드
+    void ShowCard()
+    {
+        anim.SetBool("ShowCard", true);     // 떨어지는 애니메이션 발동
+        Invoke("ShowCardInvoke", 0.2f);     // 다음 애니메이션 지연
+    }
+    void ShowCardInvoke()
+    {
+        anim.SetBool("ShowCard", false);    // CardIdle 상태로 진입
+        Invoke("CheckLastCard", 0.5f);      // 타이머 실행을 여유있게 설정
+    }
+    void CheckLastCard()
+    {
+        int lastCard = ((GameManager.sceneVariable.level + 2) * 4) - 1;
+        if (showNum == lastCard)    // 마지막 카드까지 깔릴 경우
+            GameManager.Instance.timerOn = true;   // 타이머 작동
+    }
 
 }

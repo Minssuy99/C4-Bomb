@@ -136,6 +136,7 @@ MonoBehaviour:
   front: {fileID: 243273179944606550}
   back: {fileID: 3897660953645462560}
   anim: {fileID: 4760502394528911712}
+  showNum: 0
   clip: {fileID: 8300000, guid: e0620020ef78a0f48a813482ab862157, type: 3}
   frontImage: {fileID: 3827660090093947276}
   cardName: 
@@ -149,7 +150,7 @@ Animator:
   m_GameObject: {fileID: 821972891274361861}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 08d219e35cf9ab84a82de6bbf25c6c9e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 8dba0ca4e68cbd745864a4dedbf61fe9, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -172,7 +173,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0
