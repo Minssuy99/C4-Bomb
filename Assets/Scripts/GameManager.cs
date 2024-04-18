@@ -128,6 +128,7 @@ public class GameManager : MonoBehaviour
     public static class sceneVariable
     {
         public static int level = 1;  // ·¹º§
+        public static int openStage = 1;
     }
 
     public void Matched()
